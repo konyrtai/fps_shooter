@@ -8,15 +8,15 @@ using UnityEngine.InputSystem;
 public class MovementController : MonoBehaviourPunCallbacks
 {
     /// <summary>
-    ///
+    /// Анимация
     /// </summary>
-    // public Animator animator;
-    
+    public Animator animator;
+
     /// <summary>
     /// Ввод с джойстиков
     /// </summary>
     [SerializeField] private PlayerInput playerInput;
-    
+
     /// <summary>
     /// "точка зрения"
     /// </summary>
@@ -41,7 +41,7 @@ public class MovementController : MonoBehaviourPunCallbacks
     /// Скорость ходьбы
     /// </summary>
     public float walkSpeed = 5f;
-    
+
     /// <summary>
     /// Скорость бега
     /// </summary>
@@ -61,12 +61,12 @@ public class MovementController : MonoBehaviourPunCallbacks
     /// Движение
     /// </summary>
     private Vector3 movement;
-    
+
     /// <summary>
     /// Камера отдельно, чтобы после смерти персонажа она не "исчезала" = "выключалась"
     /// </summary>
     private Camera camera;
-    
+
     /// <summary>
     /// Сила прыжка 
     /// </summary>
@@ -86,12 +86,12 @@ public class MovementController : MonoBehaviourPunCallbacks
     /// Точка основания
     /// </summary>
     public Transform groundCheckPoint;
-    
+
     /// <summary>
     /// Слой для ходьбы
     /// </summary>
     public LayerMask groundLayers;
-    
+
     /// <summary>
     /// Управление персонажем: передвижение
     /// </summary>
@@ -106,32 +106,34 @@ public class MovementController : MonoBehaviourPunCallbacks
     void Update()
     {
         // управление только своим персонажем
-        if (photonView.IsMine == false) 
+        if (photonView.IsMine == false)
             return;
-        
+
         var movementInput = playerInput.actions["Move"].ReadValue<Vector2>();
         var lookInput = playerInput.actions["Look"].ReadValue<Vector2>();
         var jumpInput = playerInput.actions["Jump"].ReadValue<float>() > 0;
 
         mouseInput = lookInput * mouseSensitivity;
-                
+
         // получаем значения мышки
         // mouseInput = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * mouseSensitivity;
-        
+
         // поворачиваем налево-направо "тело"
-        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y + mouseInput.x, transform.rotation.eulerAngles.z);
-        
+        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x,
+            transform.rotation.eulerAngles.y + mouseInput.x, transform.rotation.eulerAngles.z);
+
         if (viewPoint is null)
             throw new NullReferenceException("ViewPoint is null or empty");
 
         verticalRotationStore += mouseInput.y;
-        
+
         // ограничение по зрению вверх вниз
         verticalRotationStore = Mathf.Clamp(verticalRotationStore, -60f, 60f);
 
         // поворачиваем вверх-низ "голову" модельки с камерой
-        viewPoint.rotation = Quaternion.Euler(-verticalRotationStore, viewPoint.rotation.eulerAngles.y, viewPoint.rotation.eulerAngles.z);
-        
+        viewPoint.rotation = Quaternion.Euler(-verticalRotationStore, viewPoint.rotation.eulerAngles.y,
+            viewPoint.rotation.eulerAngles.z);
+
         // TODO: перенести на контролы
         // получаем направление движения
         // moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
@@ -140,11 +142,11 @@ public class MovementController : MonoBehaviourPunCallbacks
         // TODO: бег
         // moveSpeed = Input.GetKeyDown(KeyCode.LeftShift) ? runSpeed : walkSpeed;
         moveSpeed = walkSpeed;
-        
+
         var yVelocity = movement.y;
-        
+
         // давижение по направлению взгляда
-        movement = ((transform.forward * moveDirection.z) + (transform.right * moveDirection.x)).normalized * moveSpeed ; 
+        movement = ((transform.forward * moveDirection.z) + (transform.right * moveDirection.x)).normalized * moveSpeed;
 
         // гравитация 
         movement.y = yVelocity;
@@ -156,15 +158,9 @@ public class MovementController : MonoBehaviourPunCallbacks
 
         // проверка что персонаж стоит на поверхности
         isGrounded = Physics.Raycast(groundCheckPoint.position, Vector3.down, .25f, groundLayers);
-        
-        // TODO: перенести на контролы
-        // if (Input.GetButton("Jump") && isGrounded)
-        // {
-        //     movement.y = jumpForce;
-        // }
 
-        var isJumping = jumpInput && isGrounded; 
-        
+        var isJumping = jumpInput && isGrounded;
+
         if (isJumping)
         {
             movement.y = jumpForce;
@@ -174,22 +170,36 @@ public class MovementController : MonoBehaviourPunCallbacks
 
         // применение гравитации
         movement.y += Physics.gravity.y * Time.deltaTime * gravityMod;
-        
+
         // движение
         characterController.Move(movement * Time.deltaTime);
 
-        if (movement.x != 0 || movement.y != 0)
-        {
-            // animator.SetBool("is_running", true);
-        }
+        UpdateAnimator(moveDirection.magnitude > 0, isJumping);
     }
-    
+
     private void LateUpdate()
     {
-        if (photonView.IsMine == false) 
+        if (photonView.IsMine == false)
             return;
-        
+
+        UpdateCameraPosition();
+    }
+
+    /// <summary>
+    /// Обновление позиции камеры
+    /// </summary>
+    private void UpdateCameraPosition()
+    {
         camera.transform.position = viewPoint.position;
         camera.transform.rotation = viewPoint.rotation;
+    }
+
+    /// <summary>
+    /// Обновить анимацию
+    /// </summary>
+    private void UpdateAnimator(bool isRunning, bool isJumping)
+    {
+        animator.SetBool("is_running", isRunning);
+        animator.SetBool("is_jumping", isJumping);
     }
 }

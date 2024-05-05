@@ -7,6 +7,11 @@ using UnityEngine.InputSystem;
 public class ShootController : MonoBehaviourPunCallbacks
 {
     /// <summary>
+    /// Аниматор
+    /// </summary>
+    public Animator animator;
+    
+    /// <summary>
     /// Ввод с джойстиков
     /// </summary>
     [SerializeField] public PlayerControls playerInput;
@@ -101,13 +106,14 @@ public class ShootController : MonoBehaviourPunCallbacks
         guns[gunInUse].muzzleFlash.SetActive(false); // отключить дульную вспышку
 
         playerController = gameObject.GetComponent<PlayerController>();
-
-        // TODO: test
+        
         playerInput = new PlayerControls();
         playerInput.Enable();
         
         playerInput.Player.Nextweapon.performed += ChangeWeapon;
         playerInput.Player.Previousweapon.performed += ChangeWeapon;
+        
+        SwitchGun();
     }
 
     private void OnDestroy()
@@ -259,12 +265,10 @@ public class ShootController : MonoBehaviourPunCallbacks
 
         var gun = guns[gunInUse];
         
-        // анимация
-        // animator.SetBool("is_rifle", gun.IsRifle);
-        // animator.SetBool("is_pistol", !gun.IsRifle);
-        //
         timeBetweenShots = gun.timeBetweenShots;
         gunHeatPerShot = gun.heatPerShot;
+        
+        UpdateAnimator();
     }
 
     
@@ -280,5 +284,15 @@ public class ShootController : MonoBehaviourPunCallbacks
         {
             playerController.TakeDamage(damageAmount, damageFromNickname);
         }
+    }
+
+     /// <summary>
+     /// Обновление анимации
+     /// </summary>
+    private void UpdateAnimator()
+    {
+        var gun = guns[gunInUse];
+        animator.SetBool("is_rifle", gun.IsRifle);
+        animator.SetBool("is_pistol", !gun.IsRifle);
     }
 }
