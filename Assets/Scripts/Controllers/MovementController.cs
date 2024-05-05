@@ -13,6 +13,11 @@ public class MovementController : MonoBehaviourPunCallbacks
     public Animator animator;
 
     /// <summary>
+    /// Модель игрока
+    /// </summary>
+    public GameObject playerModel;
+    
+    /// <summary>
     /// Ввод с джойстиков
     /// </summary>
     [SerializeField] private PlayerInput playerInput;
@@ -101,6 +106,10 @@ public class MovementController : MonoBehaviourPunCallbacks
     {
         // Cursor.lockState = CursorLockMode.Locked; // Confined - курсор может находиться только в окне "игры", Lock - пропадает курсор и залочен в центре экрана
         camera = Camera.main; // главная камера
+        if (photonView.IsMine)
+        {
+            playerModel.SetActive(false); // отключаем свою модельку для себя
+        }
     }
 
     void Update()
