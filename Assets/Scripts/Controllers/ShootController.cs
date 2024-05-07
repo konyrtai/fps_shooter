@@ -113,18 +113,13 @@ public class ShootController : MonoBehaviourPunCallbacks
         playerInput.Player.Nextweapon.performed += ChangeWeapon;
         playerInput.Player.Previousweapon.performed += ChangeWeapon;
         
-        SwitchGun();
+        photonView.RPC(nameof(SetGun), RpcTarget.All, gunInUse);
     }
 
     private void OnDestroy()
     {
         playerInput.Player.Nextweapon.performed -= ChangeWeapon;
         playerInput.Player.Previousweapon.performed -= ChangeWeapon;
-    }
-    private void ChangeWeapon(InputAction.CallbackContext context)
-    {
-        gunInUse = gunInUse == 0 ? guns.Length - 1 : gunInUse - 1;
-        SwitchGun();
     }
 
     // Update is called once per frame
@@ -253,26 +248,6 @@ public class ShootController : MonoBehaviourPunCallbacks
     }
     
      /// <summary>
-     /// Сменить оружие
-     /// </summary>
-    private void SwitchGun()
-    {
-        for (int i = 0; i < guns.Length; i++)
-        {
-            guns[i].gameObject.SetActive(i == gunInUse);
-            guns[i].muzzleFlash.SetActive(false);
-        }
-
-        var gun = guns[gunInUse];
-        
-        timeBetweenShots = gun.timeBetweenShots;
-        gunHeatPerShot = gun.heatPerShot;
-        
-        UpdateAnimator();
-    }
-
-    
-     /// <summary>
      /// Получить урон - RPC
      /// </summary>
      /// <param name="damageFromNickname">Кто нанес урон</param>
@@ -295,4 +270,54 @@ public class ShootController : MonoBehaviourPunCallbacks
         animator.SetBool("is_rifle", gun.IsRifle);
         animator.SetBool("is_pistol", !gun.IsRifle);
     }
+
+    #region Switch weapon
+    
+    /// <summary>
+    /// Event holder для кнопок смены оружия
+    /// </summary>
+    /// <param name="context"></param>
+    private void ChangeWeapon(InputAction.CallbackContext context)
+    {
+        gunInUse = gunInUse == 0 ? guns.Length - 1 : gunInUse - 1;
+        // SwitchGun();
+        if (photonView.IsMine)
+        {
+            photonView.RPC(nameof(SetGun), RpcTarget.All, gunInUse);
+        }
+    }
+    
+    /// <summary>
+    /// Сменить оружие
+    /// </summary>
+    private void SwitchGun()
+    {
+        for (int i = 0; i < guns.Length; i++)
+        {
+            guns[i].gameObject.SetActive(i == gunInUse);
+            guns[i].muzzleFlash.SetActive(false);
+        }
+
+        var gun = guns[gunInUse];
+        
+        timeBetweenShots = gun.timeBetweenShots;
+        gunHeatPerShot = gun.heatPerShot;
+        
+        UpdateAnimator();
+    }
+
+    /// <summary>
+    /// Сменить оружие по сети
+    /// </summary>
+    /// <param name="gunToSwitch"></param>
+    [PunRPC]
+    public void SetGun(int gunToSwitch)
+    {
+        if (gunToSwitch < guns.Length)
+        {
+            gunInUse = gunToSwitch;
+            SwitchGun();
+        }
+    }
+    #endregion
 }
