@@ -119,7 +119,7 @@ public class UIController : MonoBehaviour
         
         ClearLeaderboard();
         
-        foreach (var player in MatchManager.instance.players)
+        foreach (var player in MatchManager.instance.players.OrderByDescending(p => p.KillsCount))
         {
             var leaderboardPlayer = Instantiate(leaderboardPlayerDisplay, leaderboardPlayerDisplay.transform.parent);
             leaderboardPlayer.Set(player.Name, player.KillsCount, player.DeathsCount);
