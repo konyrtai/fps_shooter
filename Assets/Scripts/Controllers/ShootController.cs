@@ -217,7 +217,7 @@ public class ShootController : MonoBehaviourPunCallbacks
         if (enemyHit.HasValue) 
         {
             PhotonNetwork.Instantiate(playerHitImpact.name, enemyHit.Value.point, Quaternion.identity); // создать "получение урона" на цели через photon
-            enemyHit.Value.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All, photonView.Owner.NickName, guns[gunInUse].damageAmount); // нанесение урона
+            enemyHit.Value.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All, photonView.Owner.NickName, guns[gunInUse].damageAmount, PhotonNetwork.LocalPlayer.ActorNumber); // нанесение урона
 
             // TODO: подумать что делать со следами от пуль на объектах
             // var bulletImpactRotation = Quaternion.LookRotation(enemyHit.Value.normal, Vector3.up); // поворот префаба на поверхности TODO: лучше изучить
@@ -253,11 +253,11 @@ public class ShootController : MonoBehaviourPunCallbacks
      /// <param name="damageFromNickname">Кто нанес урон</param>
      /// <param name="damageAmount">Количество урона</param>
     [PunRPC]
-    public void DealDamage(string damageFromNickname, int damageAmount)
+    public void DealDamage(string damageFromNickname, int damageAmount, int actorId)
     {
         if (photonView.IsMine && playerController != null) 
         {
-            playerController.TakeDamage(damageAmount, damageFromNickname);
+            playerController.TakeDamage(damageAmount, damageFromNickname, actorId);
         }
     }
 

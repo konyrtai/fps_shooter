@@ -1,4 +1,5 @@
 using System;
+using Domain.Enums;
 using UnityEngine;
 
 namespace Controllers
@@ -21,13 +22,14 @@ namespace Controllers
         /// </summary>
         /// <param name="damage">Количество урона</param>
         /// <param name="damageBy">Кем нанесен урон</param>
-        public void TakeDamage(int damage, string damageBy = "")
+        public void TakeDamage(int damage, string damageBy, int actorIdBy)
         {
             UpdateHealth(health - damage);
             if (health <= 0)
             {
                 health = 0;
                 PlayerSpawnManager.instance.Die(damageBy);
+                MatchManager.instance.UpdateStatsSend(actorIdBy, StatType.Kills, 1);
             }
         }
 

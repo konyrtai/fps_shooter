@@ -44,6 +44,16 @@ public class UIController : MonoBehaviour
     /// Слайдер со здоровьем
     /// </summary>
     public Slider healthSlider;
+
+    /// <summary>
+    /// Количество убийств
+    /// </summary>
+    public TMP_Text killsCountText;
+
+    /// <summary>
+    /// Количество смертей
+    /// </summary>
+    public TMP_Text deathsCountText;
     
     /// <summary>
     /// Показать сообщение о смерти
@@ -61,5 +71,15 @@ public class UIController : MonoBehaviour
     public void CloseDeathScreen()
     {
         deathScreen.SetActive(false);
+    }
+
+    public void UpdateKillsCount(int killsCount)
+    {
+        killsCountText.text = "KILLS: " + killsCount;
+    }
+
+    public void UpdateDeathsCount(int deathsCount)
+    {
+        deathsCountText.text = "DEATHS: " + deathsCount;
     }
 }

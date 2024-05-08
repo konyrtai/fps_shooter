@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Threading.Tasks;
 using Controllers;
+using Domain.Enums;
 using Photon.Pun;
 using UnityEngine;
 
@@ -56,6 +57,8 @@ public class PlayerSpawnManager : MonoBehaviour
         PhotonNetwork.Instantiate(playerDeathEffect.name, player.transform.position, Quaternion.identity); // эффект смерти
         UIController.instance.ShowDeathScreen(killer); // экран смерти
         PhotonNetwork.Destroy(player); // уничтожить модель
+        
+        MatchManager.instance.UpdateStatsSend(PhotonNetwork.LocalPlayer.ActorNumber, StatType.Deaths, 1);
 
         if (player is not null)
         {
