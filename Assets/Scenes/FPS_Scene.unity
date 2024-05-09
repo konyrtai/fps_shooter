@@ -4608,6 +4608,22 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7709078600972022444, guid: aa857b342da6b4194b33122fd39c434f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7709078600972022444, guid: aa857b342da6b4194b33122fd39c434f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7709078600972022444, guid: aa857b342da6b4194b33122fd39c434f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7709078600972022444, guid: aa857b342da6b4194b33122fd39c434f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6123,6 +6139,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players: []
+  killsToWin: 3
+  state: 0
+  waitAfterEndingInSeconds: 5
 --- !u!1001 &1753175836
 PrefabInstance:
   m_ObjectHideFlags: 0

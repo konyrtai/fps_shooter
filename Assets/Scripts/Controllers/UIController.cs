@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Domain;
+using Domain.Enums;
 using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem;
@@ -21,6 +22,7 @@ public class UIController : MonoBehaviour
     {
         CloseDeathScreen();
         CloseLeaderboard();
+        CloseMatchOverScreen();
     }
 
 
@@ -75,6 +77,29 @@ public class UIController : MonoBehaviour
     public List<PlayerLeaderboard> leaderboardPlayers = new List<PlayerLeaderboard>();
 
     /// <summary>
+    /// Экран завершения матча
+    /// </summary>
+    public GameObject matchOverScreen;
+
+    /// <summary>
+    /// Открыть экран завершения матча
+    /// </summary>
+    public void ShowMatchOverScreen()
+    {
+        matchOverScreen.SetActive(true);
+        ShowLeaderboard();
+    }
+
+    /// <summary>
+    /// Закрыть экран завершения матча
+    /// </summary>
+    public void CloseMatchOverScreen()
+    {
+        matchOverScreen.SetActive(false);
+        CloseLeaderboard();
+    }
+
+    /// <summary>
     /// Показать сообщение о смерти
     /// </summary>
     /// <param name="killer"></param>
@@ -116,6 +141,7 @@ public class UIController : MonoBehaviour
     public void ShowLeaderboard()
     {
         if(leaderboardPanel.activeInHierarchy) return; // если уже отображается
+        if(MatchManager.instance.state is not (GameState.Playing or GameState.Ending)) return; // если сейчас не идёт матч 
         
         ClearLeaderboard();
         
