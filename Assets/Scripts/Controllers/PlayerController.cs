@@ -13,8 +13,9 @@ namespace Controllers
 
         private void Start()
         {
-            UpdateHealth(100);
-            UIController.instance.healthSlider.maxValue = health;
+            var maxHealth = 100;
+            UpdateHealth(maxHealth);
+            UIController.instance.SetMaxHealth(maxHealth);
         }
 
         /// <summary>
@@ -40,7 +41,7 @@ namespace Controllers
         private void UpdateHealth(int value)
         {
             health = value;
-            UIController.instance.healthSlider.value = health;
+            UIController.instance.UpdateHealth(health);
         }
     }
 }

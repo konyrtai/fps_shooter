@@ -1,12 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Domain;
 using Domain.Enums;
 using UnityEngine;
 using TMPro;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
@@ -164,6 +161,24 @@ public class UIController : MonoBehaviour
     {
         leaderboardPanel.SetActive(false);
         ClearLeaderboard();
+    }
+
+    /// <summary>
+    /// Максимальное количество здоровья
+    /// </summary>
+    /// <param name="healthMax"></param>
+    public void SetMaxHealth(int healthMax)
+    {
+        healthSlider.maxValue = healthMax;
+    }
+    
+    /// <summary>
+    /// Обновить полоску здоровья
+    /// </summary>
+    /// <param name="health"></param>
+    public void UpdateHealth(int health)
+    {
+        healthSlider.value = health;
     }
 
     /// <summary>

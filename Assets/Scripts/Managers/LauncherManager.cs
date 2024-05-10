@@ -97,11 +97,6 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     public TMP_Text playerNameInputFieldValue;
 
     /// <summary>
-    /// Установлено ли имя
-    /// </summary>
-    private bool hasSetPlayerName;
-
-    /// <summary>
     /// Какой уровень запустить
     /// </summary>
     public string levelToPlay;
@@ -420,7 +415,6 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         }
 
         SetPlayerName(_playerName);
-        hasSetPlayerName = true;
     }
 
     /// <summary>
@@ -446,8 +440,6 @@ public class LauncherManager : MonoBehaviourPunCallbacks
 
         // сохраняем ник
         PlayerPrefs.SetString("playerName", name);
-        hasSetPlayerName = true;
     }
-
     #endregion
 }
