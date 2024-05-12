@@ -7,11 +7,6 @@ using UnityEngine.InputSystem;
 public class ShootController : MonoBehaviourPunCallbacks
 {
     /// <summary>
-    /// Аниматор
-    /// </summary>
-    public Animator animator;
-    
-    /// <summary>
     /// Ввод с джойстиков
     /// </summary>
     [SerializeField] public PlayerControls playerInput;
@@ -20,11 +15,6 @@ public class ShootController : MonoBehaviourPunCallbacks
     /// Камера отдельно, чтобы после смерти персонажа она не "исчезала" = "выключалась"
     /// </summary>
     private Camera camera;
-    
-    /// <summary>
-    /// След от выстрела на стенах
-    /// </summary>
-    public GameObject bulletImpact;
 
     /// <summary>
     /// След от попадания по игроку
@@ -95,6 +85,9 @@ public class ShootController : MonoBehaviourPunCallbacks
     /// Здоровье
     /// </summary>
     private PlayerController playerController;
+
+    public Transform modelGunPoint;
+    public Transform gunHolder;
     
     // Start is called before the first frame update
     void Start()
@@ -114,12 +107,27 @@ public class ShootController : MonoBehaviourPunCallbacks
         playerInput.Player.Previousweapon.performed += ChangeWeapon;
         
         photonView.RPC(nameof(SetGun), RpcTarget.All, gunInUse);
+        
+        SetGunHolder();
     }
 
     private void OnDestroy()
     {
         playerInput.Player.Nextweapon.performed -= ChangeWeapon;
         playerInput.Player.Previousweapon.performed -= ChangeWeapon;
+    }
+
+    /// <summary>
+    /// установить позицию оружия в модельке
+    /// </summary>
+    private void SetGunHolder()
+    {
+        if(photonView.IsMine)
+            return;
+
+        gunHolder.parent = modelGunPoint;
+        gunHolder.localPosition = Vector3.zero;
+        gunHolder.localRotation = Quaternion.identity;
     }
 
     // Update is called once per frame
@@ -260,17 +268,7 @@ public class ShootController : MonoBehaviourPunCallbacks
             playerController.TakeDamage(damageAmount, damageFromNickname, actorId);
         }
     }
-
-     /// <summary>
-     /// Обновление анимации
-     /// </summary>
-    private void UpdateAnimator()
-    {
-        var gun = guns[gunInUse];
-        animator.SetBool("is_rifle", gun.IsRifle);
-        animator.SetBool("is_pistol", !gun.IsRifle);
-    }
-
+     
     #region Switch weapon
     
     /// <summary>
@@ -302,8 +300,6 @@ public class ShootController : MonoBehaviourPunCallbacks
         
         timeBetweenShots = gun.timeBetweenShots;
         gunHeatPerShot = gun.heatPerShot;
-        
-        UpdateAnimator();
     }
 
     /// <summary>

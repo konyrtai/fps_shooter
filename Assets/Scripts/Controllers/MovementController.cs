@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Domain.Consts;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -174,9 +175,7 @@ public class MovementController : MonoBehaviourPunCallbacks
         {
             movement.y = jumpForce;
         }
-
-        // animator.SetBool("is_jumping", isJumping);
-
+        
         // применение гравитации
         movement.y += Physics.gravity.y * Time.deltaTime * gravityMod;
 
@@ -208,7 +207,7 @@ public class MovementController : MonoBehaviourPunCallbacks
     /// </summary>
     private void UpdateAnimator(bool isRunning, bool isJumping)
     {
-        animator.SetBool("is_running", isRunning);
-        animator.SetBool("is_jumping", isJumping);
+        animator.SetBool(PlayerAnimatorConstants.IsRunning, isRunning);
+        animator.SetBool(PlayerAnimatorConstants.IsJumping, isJumping);
     }
 }
