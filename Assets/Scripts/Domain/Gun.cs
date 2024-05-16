@@ -31,4 +31,9 @@ public class Gun : MonoBehaviour
     /// Винтовка
     /// </summary>
     public bool IsRifle;
+
+    /// <summary>
+    /// Звук выстрела
+    /// </summary>
+    public AudioSource shotSound;
 }

@@ -49,11 +49,6 @@ public class MovementController : MonoBehaviourPunCallbacks
     public float walkSpeed = 5f;
 
     /// <summary>
-    /// Скорость бега
-    /// </summary>
-    public float runSpeed = 10f;
-
-    /// <summary>
     /// Скорость передвижения
     /// </summary>
     private float moveSpeed;
@@ -102,6 +97,11 @@ public class MovementController : MonoBehaviourPunCallbacks
     /// Управление персонажем: передвижение
     /// </summary>
     public CharacterController characterController;
+
+    /// <summary>
+    /// Звук ходьбы
+    /// </summary>
+    public AudioSource walkingSound;
 
     void Start()
     {
@@ -182,7 +182,35 @@ public class MovementController : MonoBehaviourPunCallbacks
         // движение
         characterController.Move(movement * Time.deltaTime);
 
-        UpdateAnimator(moveDirection.magnitude > 0, isJumping);
+        bool isWalking = moveDirection.magnitude > 0;
+        UpdateAnimator(isWalking, isJumping);
+        WalkingSound(isWalking, isJumping);
+    }
+
+    /// <summary>
+    /// Звук ходьбы
+    /// </summary>
+    /// <param name="isWalking"></param>
+    /// <param name="isJumping"></param>
+    private void WalkingSound(bool isWalking, bool isJumping)
+    {
+        if (isJumping)
+        {
+            if (walkingSound.isPlaying)
+            {
+                walkingSound.Stop();
+            }
+            return;
+        }
+        
+        if (isWalking && walkingSound.isPlaying == false)
+        {
+            walkingSound.Play();
+        }
+        else if(isWalking == false && walkingSound.isPlaying)
+        {
+            walkingSound.Stop();
+        }
     }
 
     private void LateUpdate()
@@ -205,9 +233,9 @@ public class MovementController : MonoBehaviourPunCallbacks
     /// <summary>
     /// Обновить анимацию
     /// </summary>
-    private void UpdateAnimator(bool isRunning, bool isJumping)
+    private void UpdateAnimator(bool isWalking, bool isJumping)
     {
-        animator.SetBool(PlayerAnimatorConstants.IsRunning, isRunning);
+        animator.SetBool(PlayerAnimatorConstants.IsRunning, isWalking);
         animator.SetBool(PlayerAnimatorConstants.IsJumping, isJumping);
     }
 }

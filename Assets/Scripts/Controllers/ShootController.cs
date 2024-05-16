@@ -10,7 +10,7 @@ public class ShootController : MonoBehaviourPunCallbacks
     /// Ввод с джойстиков
     /// </summary>
     [SerializeField] public PlayerControls playerInput;
-    
+
     /// <summary>
     /// Камера отдельно, чтобы после смерти персонажа она не "исчезала" = "выключалась"
     /// </summary>
@@ -20,7 +20,7 @@ public class ShootController : MonoBehaviourPunCallbacks
     /// След от попадания по игроку
     /// </summary>
     public GameObject playerHitImpact;
-    
+
     /// <summary>
     /// Время между выстрелам
     /// </summary>
@@ -80,7 +80,7 @@ public class ShootController : MonoBehaviourPunCallbacks
     /// Счётчик
     /// </summary>
     public float muzzleFlashCounter;
-    
+
     /// <summary>
     /// Здоровье
     /// </summary>
@@ -88,26 +88,26 @@ public class ShootController : MonoBehaviourPunCallbacks
 
     public Transform modelGunPoint;
     public Transform gunHolder;
-    
+
     // Start is called before the first frame update
     void Start()
     {
         UIController.instance.overheatedMessage.gameObject.SetActive(false);
         UIController.instance.gunTempSlider.maxValue = gunMaxHeat;
-        
+
         camera = Camera.main; // главная камера
         guns[gunInUse].muzzleFlash.SetActive(false); // отключить дульную вспышку
 
         playerController = gameObject.GetComponent<PlayerController>();
-        
+
         playerInput = new PlayerControls();
         playerInput.Enable();
-        
+
         playerInput.Player.Nextweapon.performed += ChangeWeapon;
         playerInput.Player.Previousweapon.performed += ChangeWeapon;
-        
+
         photonView.RPC(nameof(SetGun), RpcTarget.All, gunInUse);
-        
+
         SetGunHolder();
     }
 
@@ -122,7 +122,7 @@ public class ShootController : MonoBehaviourPunCallbacks
     /// </summary>
     private void SetGunHolder()
     {
-        if(photonView.IsMine)
+        if (photonView.IsMine)
             return;
 
         gunHolder.parent = modelGunPoint;
@@ -134,9 +134,9 @@ public class ShootController : MonoBehaviourPunCallbacks
     void Update()
     {
         // TODO: test
-        if (photonView.IsMine == false) 
+        if (photonView.IsMine == false)
             return;
-        
+
         // выключаем дульную вспышку
         if (guns[gunInUse].muzzleFlash.activeInHierarchy) // если включена
         {
@@ -146,7 +146,7 @@ public class ShootController : MonoBehaviourPunCallbacks
                 guns[gunInUse].muzzleFlash.SetActive(false);
             }
         }
-        
+
         // проверка на перегрев
         if (!gunOverHeated)
         {
@@ -157,9 +157,9 @@ public class ShootController : MonoBehaviourPunCallbacks
                 if (guns[gunInUse].isAutomatic)
                 {
                     shotCounter -= Time.deltaTime;
-            
+
                     // продолжаем стрельбу
-                    if (shotCounter <= 0) 
+                    if (shotCounter <= 0)
                     {
                         Shoot();
                     }
@@ -185,7 +185,7 @@ public class ShootController : MonoBehaviourPunCallbacks
 
             UIController.instance.overheatedMessage.gameObject.SetActive(false);
         }
-        
+
         UIController.instance.gunTempSlider.value = gunHeatCounter;
     }
 
@@ -198,14 +198,14 @@ public class ShootController : MonoBehaviourPunCallbacks
         var ray = camera.ViewportPointToRay(new Vector3(.5f, .5f, 0f)); // .5f .5f это середина экрана
         ray.origin = camera.transform.position;
         return ray;
-    } 
+    }
 
     /// <summary>
     /// Враг в прицеле
     /// </summary>
     private RaycastHit? IsEnemyInCrosshair()
     {
-        if(photonView.IsMine == false)
+        if (photonView.IsMine == false)
             return null;
 
         // если raycast упёрся в игрока
@@ -213,19 +213,22 @@ public class ShootController : MonoBehaviourPunCallbacks
             ? hit
             : null;
     }
-    
+
     private void Shoot()
     {
         // управление только своим персонажем
-        if (photonView.IsMine == false) 
+        if (photonView.IsMine == false)
             return;
 
         var enemyHit = IsEnemyInCrosshair();
-        
-        if (enemyHit.HasValue) 
+
+        if (enemyHit.HasValue)
         {
-            PhotonNetwork.Instantiate(playerHitImpact.name, enemyHit.Value.point, Quaternion.identity); // создать "получение урона" на цели через photon
-            enemyHit.Value.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All, photonView.Owner.NickName, guns[gunInUse].damageAmount, PhotonNetwork.LocalPlayer.ActorNumber); // нанесение урона
+            PhotonNetwork.Instantiate(playerHitImpact.name, enemyHit.Value.point,
+                Quaternion.identity); // создать "получение урона" на цели через photon
+            enemyHit.Value.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All,
+                photonView.Owner.NickName, guns[gunInUse].damageAmount,
+                PhotonNetwork.LocalPlayer.ActorNumber); // нанесение урона
 
             // TODO: подумать что делать со следами от пуль на объектах
             // var bulletImpactRotation = Quaternion.LookRotation(enemyHit.Value.normal, Vector3.up); // поворот префаба на поверхности TODO: лучше изучить
@@ -246,31 +249,48 @@ public class ShootController : MonoBehaviourPunCallbacks
             gunHeatCounter = gunMaxHeat;
 
             gunOverHeated = true;
-            
+
             UIController.instance.overheatedMessage.gameObject.SetActive(true);
         }
-        
-        // дульная вспышка
+
+        EnableMuzzleFlash();
+        EnableShotSound();
+    }
+
+    /// <summary>
+    /// Дульная вспышка
+    /// </summary>
+    private void EnableMuzzleFlash()
+    {
         guns[gunInUse].muzzleFlash.SetActive(true);
         muzzleFlashCounter = muzzleFlashDisplayTime;
     }
-    
-     /// <summary>
-     /// Получить урон - RPC
-     /// </summary>
-     /// <param name="damageFromNickname">Кто нанес урон</param>
-     /// <param name="damageAmount">Количество урона</param>
+
+    /// <summary>
+    /// Звук выстрела
+    /// </summary>
+    private void EnableShotSound()
+    {
+        guns[gunInUse].shotSound.Stop(); // если очередь выстрелов
+        guns[gunInUse].shotSound.Play();
+    }
+
+    /// <summary>
+    /// Получить урон - RPC
+    /// </summary>
+    /// <param name="damageFromNickname">Кто нанес урон</param>
+    /// <param name="damageAmount">Количество урона</param>
     [PunRPC]
     public void DealDamage(string damageFromNickname, int damageAmount, int actorId)
     {
-        if (photonView.IsMine && playerController != null) 
+        if (photonView.IsMine && playerController != null)
         {
             playerController.TakeDamage(damageAmount, damageFromNickname, actorId);
         }
     }
-     
+
     #region Switch weapon
-    
+
     /// <summary>
     /// Event holder для кнопок смены оружия
     /// </summary>
@@ -284,7 +304,7 @@ public class ShootController : MonoBehaviourPunCallbacks
             photonView.RPC(nameof(SetGun), RpcTarget.All, gunInUse);
         }
     }
-    
+
     /// <summary>
     /// Сменить оружие
     /// </summary>
@@ -297,7 +317,7 @@ public class ShootController : MonoBehaviourPunCallbacks
         }
 
         var gun = guns[gunInUse];
-        
+
         timeBetweenShots = gun.timeBetweenShots;
         gunHeatPerShot = gun.heatPerShot;
     }
@@ -315,5 +335,6 @@ public class ShootController : MonoBehaviourPunCallbacks
             SwitchGun();
         }
     }
+
     #endregion
 }
