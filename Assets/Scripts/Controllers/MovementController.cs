@@ -124,10 +124,7 @@ public class MovementController : MonoBehaviourPunCallbacks
         var jumpInput = playerInput.actions["Jump"].ReadValue<float>() > 0;
 
         mouseInput = lookInput * mouseSensitivity;
-
-        // получаем значения мышки
-        // mouseInput = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * mouseSensitivity;
-
+        
         // поворачиваем налево-направо "тело"
         transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x,
             transform.rotation.eulerAngles.y + mouseInput.x, transform.rotation.eulerAngles.z);
@@ -144,9 +141,7 @@ public class MovementController : MonoBehaviourPunCallbacks
         viewPoint.rotation = Quaternion.Euler(-verticalRotationStore, viewPoint.rotation.eulerAngles.y,
             viewPoint.rotation.eulerAngles.z);
 
-        // TODO: перенести на контролы
         // получаем направление движения
-        // moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
         moveDirection = new Vector3(movementInput.x, 0f, movementInput.y);
 
         // TODO: бег
@@ -182,7 +177,7 @@ public class MovementController : MonoBehaviourPunCallbacks
         // движение
         characterController.Move(movement * Time.deltaTime);
 
-        bool isWalking = moveDirection.magnitude > 0;
+        var isWalking = moveDirection.magnitude > 0;
         UpdateAnimator(isWalking, isJumping);
         WalkingSound(isWalking, isJumping);
     }
